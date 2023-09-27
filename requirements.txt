@@ -1,4 +1,5 @@
 jupyter==1.0.0
+jupyterlab
 ipython==7.22.0
 notebook==6.3.0
 pandas==1.2.4
