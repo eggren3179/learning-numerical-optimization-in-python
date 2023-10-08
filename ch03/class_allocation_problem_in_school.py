@@ -360,10 +360,16 @@ result_df
 result_df.shape
 
 
-# In[48]:
+# In[62]:
 
 
-result_df.shape == (315,1)
+result_df.isnull().any()
+
+
+# In[63]:
+
+
+result_df.isnull().any().sum()
 
 
 # In[43]:
@@ -372,6 +378,133 @@ result_df.shape == (315,1)
 students_result_df = students_df.copy()
 students_result_df["class"] =result_df
 students_result_df
+
+
+# このdfが問題なく作られており、class列のdfにNoneがないということは1人に1つのクラスが割り当てられていることの確認ができた、ということを意味している。
+
+# #### 4-2. 最適化要件２の検証
+#  - 「各クラスの生徒数は39人以上、40人以下とする」ことが満たされているか検証
+
+# In[68]:
+
+
+print("Check the number of students in each class...")
+for c, s in student_class_mapping_dict.items():
+    print(f"class:{c}")
+    print(f"Allocated results:{len(s)}")
+    if len(s) < 39 or len(s) > 40:
+        print(f"Error!!:: class {c} is allocated more or less allocated number of students than expected")
+    else:
+        print("OK")
+    print("")
+
+
+# #### 4-3.最適化要件３の検証
+#  - 「各クラスの男子、女子生徒の人数はそれぞれ20人以下とする」ことが満たされていることの検証
+
+# In[77]:
+
+
+print("Check the number of male and female students in each class...")
+for i in range(num_of_class):
+    print(f"class:{i}")
+    students_result_class_i_df = students_result_df[students_result_df["class"] == i]
+    male_students_result_class_i_df = students_result_class_i_df[students_result_class_i_df["gender"] == 1]
+    female_students_result_class_i_df = students_result_class_i_df[students_result_class_i_df["gender"] == 0]
+    male_number = len(male_students_result_class_i_df)
+    female_number = len(female_students_result_class_i_df)
+    print(f"number of male:{male_number}")
+    print(f"number of female:{female_number}")
+    
+    if male_number > 20 or female_number > 20:
+        print(f"Error!!:: class {i} is allocated more or less number of male or female than expected")
+    else:
+        print("OK")
+        print("")
+
+
+# #### 4-4. 最適化要件４の検証
+#  - 「各クラスの学力試験の平均点は学年平均点±10点とする」ことが満たされていることの検証
+
+# In[79]:
+
+
+print("Check the mean of score in each class...")
+for i in range(num_of_class):
+    print(f"class:{i}")
+    students_result_class_i_df = students_result_df[students_result_df["class"] == i]
+    mean_i = students_result_class_i_df["score"].mean()
+    print(f"men score:{mean_i}")
+    if mean_i < p_mean -10 or mean_i > p_mean + 10:
+        print(f"Error!!:: mean score of class {i} less or more than expected")
+    else:
+        print("OK")
+    print("")
+
+
+# #### 4-5. 最適化要件５の検証
+#  - 「各クラスにリーダー気質の生徒を2人以上割り当てる」ことが満たされていることの検証
+
+# In[88]:
+
+
+print("Check the number of students of leader_flag in each class...")
+for i in range(num_of_class):
+    print(f"class:{i}")
+    students_result_class_i_df = students_result_df[students_result_df["class"] == i]
+    num_of_leader_class_i = students_result_class_i_df["leader_flag"].sum()
+    print(f"num_of_leader:{num_of_leader_class_i}")
+    if num_of_leader_class_i <2:
+        print(f"Error!!:: number of leader candidates in class {i} less or more than expected")
+    else:
+        print("OK")
+    print("")
+
+
+# #### 4-6.最適化要件６の検証
+#  - 「特別な支援が必要な生徒は各クラスに1人以下とする」が満たされていることの検証
+
+# In[86]:
+
+
+print("Check the number of students who needs support by someone...")
+for i in range(num_of_class):
+    print(f"class:{i}")
+    students_result_class_i_df = students_result_df[students_result_df["class"] == i]
+    num_of_need_support = students_result_class_i_df["support_flag"].sum()
+    print(f"num_of_need_support:{num_of_need_support}")
+    if num_of_need_support > 1:
+        print(f"Error!!:: number of students who needs support by someone in class {i} is more than expected")
+    else:
+        print("OK")
+    print("")
+
+
+# #### 4-7.最適化要件７の検証
+#  - 「特定ペアの生徒は同一クラスに割り当てないように配慮する」が満たされていることの検証
+
+# In[144]:
+
+
+print("Check the class of students who are belong in the special pair list...")
+for row in students_pair_df.itertuples():
+    id1 = row.student_id1
+    id2 = row.student_id2
+    print(f"id1:{id1}")
+    class_id1 = students_result_df.query(f"student_id=={id1}")["class"].values[0]
+    # class_id1 = students_result_df.loc[students_result_df['student_id'] == f'{id1}', 'class'].values[0]
+    print(f"class_id1:{class_id1}")
+    print(f"id2:{id2}")
+    class_id2 = students_result_df.query(f"student_id=={id2}")["class"].values[0]
+    print(f"class_id2:{class_id2}")
+    
+    if class_id1 == class_id2:
+        print(f"Error!!:: {id1} and {id2} are allocated the same class {class_id1}")
+    else:
+        print("OK")
+    print("")
+
+    
 
 
 # In[ ]:
