@@ -1,2 +1,4 @@
+./ch02/.ipynb_checkpoints/*
+./ch02/__pycache__/*
 ./ch*/.ipynb_checkpoints/*
 ./ch*/__pycache__/*
